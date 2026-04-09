@@ -1,44 +1,41 @@
 import streamlit as st
 import random
-import pandas as pd
 from decimal import Decimal
 
-# --- LÓGICA DE DEFENSA ACTIVA (ESPEJISMO) ---
+# --- GENERADOR DE COORDENADAS FANTASMA ---
+def generar_coordenadas_falsas():
+    # Genera una ubicación plausible pero aleatoria (ej. en medio del Océano o el Desierto)
+    lat = random.uniform(-90, 90)
+    lon = random.uniform(-180, 180)
+    return f"COORD_SENSITIVE: {lat:.6f}, {lon:.6f} | STATUS: ENCRYPTED_STREAM"
 
-def generar_ruido_sin_sentido():
-    """Genera una cadena caótica para confundir al interceptor."""
-    caracteres = "0123456789ABCDEF!@#$%^&*()_+¿?¡"
-    return "".join(random.choice(caracteres) for _ in range(20))
-
-def auditoria_de_fase(latencia, fase_correcta, fase_intento):
-    # Umbral de Soberanía (3 microsegundos)
-    UMBRAL = Decimal('0.000003')
+def auditoria_defensiva(latencia, fase_correcta, fase_intento):
+    UMBRAL = Decimal('0.000003') # 3 microsegundos de soberanía
     
-    # 1. CASO DE ÉXITO: Sincronía Total
+    # 1. ÉXITO: Sincronía pura (M0)
     if latencia <= UMBRAL and fase_intento == fase_correcta:
         return "SINCERIDAD", "DESENCRIPTADO"
     
-    # 2. CASO DE INTERCEPCIÓN: Latencia detectada (Envenenamiento)
+    # 2. DEFENSA: Latencia detectada (Hackers / Interceptores)
     elif latencia > UMBRAL:
-        # El interceptor ve algo que parece código pero no tiene sentido
-        mensaje_falso = f"ERR_{generar_ruido_sin_sentido()}_NULL"
-        return "ENVENENAMIENTO", mensaje_falso
+        # El interceptor recibe datos que parecen valiosos pero son señuelos
+        return "ESPEJISMO", generar_coordenadas_falsas()
     
-    # 3. CASO DE ERROR DE FASE: Clave incorrecta
+    # 3. BLOQUEO: Error de fase
     else:
-        return "CAOS", "IDENTIDAD_NO_TRAZADA"
+        return "BLOQUEO", "ERROR_DE_FASE: IDENTIDAD NO LOCALIZABLE"
 
-# --- INTEGRACIÓN EN LA INTERFAZ ---
-# (Este bloque iría dentro del botón 'Validar Trayectoria')
+# --- INTERFAZ DE AUDITORÍA ---
+# (Dentro del flujo de validación de tu app)
 
-# ... (código previo de cálculo de latencia)
+# ... [código previo de cálculo de latencia] ...
 
-estado, resultado = auditoria_de_fase(latencia, fase_privada, intento_fase)
+estado, mensaje_salida = auditoria_defensiva(latencia, fase_privada, intento_fase)
 
 if estado == "SINCERIDAD":
-    st.success(f"M0 REVELADO: {resultado}")
+    st.success(f"✅ IDENTIDAD RECUPERADA: {mensaje_salida}")
     st.balloons()
-elif estado == "ENVENENAMIENTO":
-    st.warning("⚠️ ALERTA DE SEGURIDAD: Trayectoria interceptada o latencia excedida.")
-    st.error(f"CONTENIDO PARA EL OBSERVADOR: {resultado}")
-    st.info("El sistema ha inyectado desorden para proteger la identidad original.")
+elif estado == "ESPEJISMO":
+    st.warning("⚠️ DESVIACIÓN DETECTADA: Activando contramedidas de fase.")
+    st.code(mensaje_salida, language="bash")
+    st.info("El interceptor está siguiendo una trayectoria señuelo.")
